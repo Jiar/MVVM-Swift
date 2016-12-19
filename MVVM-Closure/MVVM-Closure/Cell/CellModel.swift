@@ -8,14 +8,14 @@
 
 struct CellModel {
     
-    let image: String
     let title: String
     let detail: String
+    let image: String
     
-    init(image: String, title: String, detail: String) {
-        self.image = image
+    init(title: String, detail: String, image: String) {
         self.title = title
         self.detail = detail
+        self.image = image
     }
     
 }

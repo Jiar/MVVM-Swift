@@ -12,6 +12,16 @@ class CustomCell: UITableViewCell {
 
     var cellViewModel: CellViewModel? {
         didSet {
+            cellViewModel?.titleObservable.observer {
+                [unowned self] in
+                self.textLabel?.text = $0
+                self.textLabel?.textColor = .darkGray
+            }
+            cellViewModel?.detailObservable.observer {
+                [unowned self] in
+                self.detailTextLabel?.text = $0
+                self.detailTextLabel?.textColor = .lightGray
+            }
             cellViewModel?.imageObservable.observer {
                 [unowned self] in
                 if let image = $0 {
@@ -19,14 +29,6 @@ class CustomCell: UITableViewCell {
                 } else {
                     self.imageView?.image = nil
                 }
-            }
-            cellViewModel?.titleObservable.observer {
-                [unowned self] in
-                self.textLabel?.text = $0
-            }
-            cellViewModel?.detailObservable.observer {
-                [unowned self] in
-                self.detailTextLabel?.text = $0
             }
         }
     }

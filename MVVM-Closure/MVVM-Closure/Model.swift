@@ -8,8 +8,6 @@
 
 struct Model {
     
-    var pageIndex: Int = 0
-    var pageSize: Int = 10
     let headModel: HeadModel
     let cellModels: [CellModel]
     

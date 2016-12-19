@@ -8,14 +8,14 @@
 
 class CellViewModel {
     
-    let imageObservable: Observable<String?>
     let titleObservable: Observable<String?>
     let detailObservable: Observable<String?>
+    let imageObservable: Observable<String?>
     
     init(_ cellModel: CellModel) {
-        imageObservable = Observable(cellModel.image)
         titleObservable = Observable(cellModel.title)
         detailObservable = Observable(cellModel.detail)
+        imageObservable = Observable(cellModel.image)
     }
     
 }

@@ -42,8 +42,8 @@ class ViewController: UIViewController {
     }
     
     func refresh() {
-        viewModel.pageIndexObservable.value = 0
-        viewModel.pageSizeObservable.value = 10
+        viewModel.pageIndex = 0
+        viewModel.pageSize = 10
         viewModel.refresh {
             [unowned self] in
             let currentDate = Date()
@@ -57,15 +57,11 @@ class ViewController: UIViewController {
     }
     
     func loadMore() {
-        if let value = viewModel.pageIndexObservable.value {
-            viewModel.pageIndexObservable.value = value + 1
-        } else {
-            viewModel.pageIndexObservable.value = 1
-        }
+        viewModel.pageIndex += 1
         viewModel.loadMore {
             [unowned self] in
-            let pageIndex = self.viewModel.pageIndexObservable.value ?? 0
-            let pageSize = self.viewModel.pageSizeObservable.value ?? 0
+            let pageIndex = self.viewModel.pageIndex
+            let pageSize = self.viewModel.pageSize
             let from = pageIndex*pageSize
             var indexPaths: [IndexPath] = []
             for index in from ..< from+pageSize {

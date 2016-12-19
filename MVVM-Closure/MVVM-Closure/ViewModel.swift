@@ -10,20 +10,13 @@ import Foundation
 
 class ViewModel {
     
-    let pageIndexObservable: Observable<Int?>
-    let pageSizeObservable: Observable<Int?>
-    let headViewModelObservable: Observable<HeadViewModel?>
-    let cellViewModelsObservable: Observable<[CellViewModel]>
-    
-    init() {
-        pageIndexObservable = Observable(nil)
-        pageSizeObservable = Observable(nil)
-        headViewModelObservable = Observable(nil)
-        cellViewModelsObservable = Observable([])
-    }
+    var pageIndex: Int = 0
+    var pageSize: Int = 10
+    let headViewModelObservable: Observable<HeadViewModel?> = Observable(nil)
+    let cellViewModelsObservable: Observable<[CellViewModel]> = Observable([])
     
     func refresh(completion: @escaping ()->Void) {
-        requestData(withPageIndex: pageIndexObservable.value ?? 0, pageSize: pageSizeObservable.value ?? 0) {
+        requestData(withPageIndex: pageIndex, pageSize: pageSize) {
             (model) in
             self.headViewModelObservable.value = HeadViewModel(model.headModel)
             self.cellViewModelsObservable.value = model.cellModels.map {
@@ -34,7 +27,7 @@ class ViewModel {
     }
     
     func loadMore(completion: @escaping ()->Void) {
-        requestData(withPageIndex: pageIndexObservable.value ?? 0, pageSize: pageSizeObservable.value ?? 0) {
+        requestData(withPageIndex: pageIndex, pageSize: pageSize) {
             (model) in
             let cellViewModels = model.cellModels.map {
                 return CellViewModel($0)
@@ -45,32 +38,28 @@ class ViewModel {
     }
     
     private func requestData(withPageIndex pageIndex: Int, pageSize: Int = 10, completion: @escaping (Model)->Void) {
-        RequestHelper.PageIndex = pageIndex
-        RequestHelper.PageSize = pageSize
-        RequestHelper.request { (array, dictory) in
+        RequestHelper.request(withPageIndex: pageIndex, pageSize: pageSize, completion: { (array, dictory) in
             let headModel = HeadModel(title: dictory["title"] ?? "", detail: dictory["detail"] ?? "")
             let cellModels = array.map {
-                return CellModel(image: $0["image"] ?? "", title: $0["title"] ?? "", detail: $0["detail"] ?? "")
+                return CellModel(title: $0["title"] ?? "", detail: $0["detail"] ?? "", image: $0["image"] ?? "")
             }
-            let model = Model(pageIndex: pageIndex, pageSize: pageSize, headModel: headModel, cellModels: cellModels)
+            let model = Model(headModel: headModel, cellModels: cellModels)
             completion(model)
-        }
+        })
     }
     
 }
 
 class RequestHelper {
     
-    static var PageIndex = 0
-    static var PageSize = 10
     static let ConcurrentQueue = DispatchQueue(label: "com.jiar.concurrent", attributes: .concurrent)
     
-    class func request(completion: @escaping ([[String: String]], [String: String])->Void) {
+    class func request(withPageIndex pageIndex: Int, pageSize: Int, completion: @escaping ([[String: String]], [String: String])->Void) {
         
         ConcurrentQueue.async {
             var array: [[String: String]] = []
-            let from = PageIndex*PageSize
-            for index in from ..< from+PageSize {
+            let from = pageIndex*pageSize
+            for index in from ..< from+pageSize {
                 array.append(["image":"Ninja0\(index%8+1)","title":"Ninja \(index)","detail":"this is the Ninja \(index)"])
             }
             let dictory: [String: String] = ["title": "Teenage Mutant Ninja Turtles", "detail": "arc4random：\(arc4random())"]
